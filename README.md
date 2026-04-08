@@ -1,0 +1,2 @@
+# jubilant-succotash
+Seraph CDN
