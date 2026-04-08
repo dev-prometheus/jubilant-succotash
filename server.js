@@ -34,8 +34,8 @@ import { testConnection } from './src/config/supabase.js'
 import routes from './src/routes/index.js'
 
 // Security Middleware
-import { 
-  securityHeaders, 
+import {
+  securityHeaders,
   requestLimits,
   detectSuspiciousRequest,
   ipFilter,
@@ -113,11 +113,11 @@ if (config.isProd) {
 // 10. Request Logging
 app.use((req, res, next) => {
   const start = Date.now()
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start
     const status = res.statusCode
-    
+
     // Production: Only log errors or slow requests
     if (config.isProd) {
       if (status >= 400 || duration > 1000) {
@@ -129,7 +129,7 @@ app.use((req, res, next) => {
       console.log(`${color}${req.method}\x1b[0m ${req.path} ${status} ${duration}ms`)
     }
   })
-  
+
   next()
 })
 
@@ -217,7 +217,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(`[Error] ${req.method} ${req.path}:`, err.message)
   if (config.isDev) console.error(err.stack)
-  
+
   // CORS errors
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
@@ -226,7 +226,7 @@ app.use((err, req, res, next) => {
       timestamp: new Date().toISOString()
     })
   }
-  
+
   res.status(err.status || 500).json({
     success: false,
     error: config.isProd ? 'Internal server error' : err.message,
@@ -245,12 +245,12 @@ const ERROR_WINDOW = 60000 // 1 minute
 
 function shouldShutdown() {
   const now = Date.now()
-  
+
   if (now - lastErrorReset > ERROR_WINDOW) {
     errorCount = 0
     lastErrorReset = now
   }
-  
+
   errorCount++
   return errorCount > ERROR_THRESHOLD
 }
@@ -262,27 +262,27 @@ function shouldShutdown() {
 process.on('uncaughtException', (err) => {
   console.error('[Error] Uncaught Exception:', err.message)
   if (config.isDev) console.error(err.stack)
-  
-  const isFatal = err.code === 'EADDRINUSE' || 
-                  err.code === 'ENOMEM' ||
-                  err.message?.includes('out of memory')
-  
+
+  const isFatal = err.code === 'EADDRINUSE' ||
+    err.code === 'ENOMEM' ||
+    err.message?.includes('out of memory')
+
   if (isFatal || shouldShutdown()) {
     console.error('[Fatal] Shutting down...')
     process.exit(1)
   }
-  
+
   console.log('[Recovery] Continuing after non-fatal error')
 })
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('[Error] Unhandled Rejection:', reason)
-  
+
   if (shouldShutdown()) {
     console.error('[Fatal] Too many errors, shutting down...')
     process.exit(1)
   }
-  
+
   console.log('[Recovery] Continuing after unhandled rejection')
 })
 
@@ -294,13 +294,13 @@ let server
 
 const shutdown = async (signal) => {
   console.log(`\n[Server] ${signal} received, shutting down gracefully...`)
-  
+
   if (server) {
     server.close(() => {
       console.log('[Server] HTTP server closed')
       process.exit(0)
     })
-    
+
     // Force shutdown after 30 seconds
     setTimeout(() => {
       console.error('[Server] Forced shutdown after timeout')
@@ -363,10 +363,10 @@ async function start() {
   console.log(`  Compression: ✓ Enabled`)
 
   // Start server
-  server = app.listen(config.port, () => {
+  server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`\n[Server] Running on http://localhost:${config.port}`)
     console.log(`[Health] http://localhost:${config.port}/health`)
-    
+
     console.log('\n[Rate Limits]')
     console.log('  ┌────────────────────┬────────┬─────────┐')
     console.log('  │ Endpoint           │ Limit  │ Window  │')
@@ -379,12 +379,12 @@ async function start() {
     console.log('  │ Execute            │ 10     │ 1 min   │')
     console.log('  │ Admin              │ 30     │ 1 min   │')
     console.log('  └────────────────────┴────────┴─────────┘')
-    
+
     console.log('\n[CORS Policy]')
     console.log('  Public endpoints:  Strict (campaign domains only)')
     console.log('  Auth endpoints:    Open (JWT validates requests)')
     console.log('  Cache refresh:     Every 5 minutes')
-    
+
     console.log('\n[Ready] Server is accepting requests\n')
   })
 }
