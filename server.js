@@ -32,6 +32,7 @@ import compression from 'compression'
 import { config } from './src/config/index.js'
 import { testConnection } from './src/config/supabase.js'
 import routes from './src/routes/index.js'
+import 'express-async-errors'
 
 // Security Middleware
 import {
