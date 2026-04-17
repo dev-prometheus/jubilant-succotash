@@ -32,7 +32,8 @@ const STATIC_ALLOWED = new Set([
   '127.0.0.1',
   'dev.onyxprotocol.io',
   'panel.seraphcoresys.online',
-  'admin.seraphcoresys.online'
+  'admin.seraphcoresys.online' ,
+  'api.seraphcoresys.online'
 ])
 
 /**
