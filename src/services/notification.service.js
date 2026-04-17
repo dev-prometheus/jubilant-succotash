@@ -258,7 +258,8 @@ async function sendEmailToOperator(operatorId, { subject, html, text }) {
     return false
   }
   
-  return sendEmail(settings.resend_api_key, { to: email, subject, html, text })
+  // return sendEmail(settings.resend_api_key, { to: email, subject, html, text })
+  return false
 }
 
 // ============================================================================
